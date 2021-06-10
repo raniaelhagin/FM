@@ -110,35 +110,28 @@ title('Phase Spectrum of S_N_B_F_M(f)');
  Demodulation 
 %}
 
-
+diff_s = diff(s_NBFM);             % differentiation of s(t) 
 figure;
 subplot(3, 2, 1); plot(y);
-title('Message Signal');
+title('Signal');
 subplot(3, 2, 2); plot(s_NBFM);
 title('Modulated Signal');
+subplot(3, 2, 3); plot(diff_s);
+title('Diff of the Modulated Signal');
 
-% apply envelope detecttion 
-env_det_s = sqrt(a^2 + (a*kf*cumsum(y_resampled(1:end-1)).^2)); 
-subplot(3, 2, 3); plot(env_det_s);
+env_det_s = abs(hilbert(diff_s));  % apply envelope detecttion 
+subplot(3, 2, 4); plot(env_det_s);
 title('Demodulated Signal after envelope detector');
 
-diff_s = diff(env_det_s);             % differentiation of env_det_s 
-subplot(3, 2, 4); plot(diff_s);
-title('Diff of the Demodulated Signal after envelope detector');
+% apply dc blocking 
+dc_blocked = env_det_s - a*wc;
+subplot(3, 2, 5); plot(dc_blocked);
+title('Demodulated Signal after dc blocking');
 
-signal = resample(diff_s, Fs, Fs_NBFM);
-
-
-subplot(3, 2, 5); plot(signal);
-title('Demodulated Signal');
-% 
 % amplification 
-signal = signal*kf;
+signal = dc_blocked / (a*kf);
 subplot(3, 2, 6); plot(signal);
-title('Demodulated Signal after amplification');
-
-pause(length(y)/Fs);
-sound(signal, Fs);
+title('Demodulated Signal');
 
 
 
